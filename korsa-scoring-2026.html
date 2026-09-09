@@ -167,6 +167,12 @@
      Naikkan kalau tepi masih kena crop. */
   --vt-safe: 1.2%;
 
+  /* Area aman itu zona mati — harus sewarna ground layar, bukan sewarna garis
+     pemisah sel. Dulu ia memakai --vt-gap sehingga di mode terang muncul
+     bingkai abu muda mengelilingi papan, dan di rasio 1:1 ada sambungan
+     terlihat dengan area letterbox. */
+  --vt-frame: #000000;
+
   /* Garis pemisah strip header sel. Di mode gelap strip sewarna badan sel
      sehingga garis ini yang memikul pembedaan; navy-50 lolos 3:1 di kedua
      mode (5,05:1 di navy-100, 4,31:1 di navy-90). */
@@ -675,7 +681,7 @@ img { max-width: 100%; display: block; }
   position: relative;
   display: flex; flex-direction: column;
   padding: var(--vt-safe);              /* safe area anti-crop */
-  background: var(--vt-gap);
+  background: var(--vt-frame);
   overflow: hidden;
 }
 .vt[data-ratio="fill"]   { width: 100vw; height: 100vh; }
