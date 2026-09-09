@@ -1,0 +1,10 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# Situs cuma berisi satu halaman (korsa-scoring-2026.html), bukan index.html -
+# rewrite root ke file itu supaya buka domain langsung tampil papan skor.
+[[redirects]]
+  from = "/"
+  to = "/korsa-scoring-2026.html"
+  status = 200

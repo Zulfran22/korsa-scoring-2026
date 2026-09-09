@@ -1,0 +1,8 @@
+{
+  "name": "korsa-scoring-2026",
+  "private": true,
+  "description": "Papan skor tenis meja KORSA 2026 - static HTML + Netlify Function untuk sync antar perangkat",
+  "dependencies": {
+    "@netlify/blobs": "^11.0.0"
+  }
+}
