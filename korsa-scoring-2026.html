@@ -404,23 +404,6 @@ img { max-width: 100%; display: block; }
   padding-right: var(--margin-s);
 }
 
-.filewarn {
-  display: flex; align-items: center; gap: var(--margin-m);
-  padding: var(--margin-s) var(--margin-xl);
-  background: var(--error-surface);
-  border-bottom: var(--stroke-xs) solid var(--error-border);
-  color: var(--error-main);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-}
-.filewarn code {
-  font-family: ui-monospace, monospace;
-  background: rgba(0,0,0,.06);
-  padding: 1px 5px;
-  border-radius: var(--radius-xs);
-}
-.filewarn__close { margin-left: auto; font-size: var(--text-m); color: inherit; flex-shrink: 0; }
-
 /* ═══════════════════════════════════════════════════════════════════════════
    8 · ADMIN · WORKSPACE
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -447,6 +430,9 @@ img { max-width: 100%; display: block; }
   transition: box-shadow .2s, border-color .2s;
 }
 .match[data-status="live"] { border-color: var(--success-main); box-shadow: var(--elevation-2); }
+/* overflow:hidden di atas membulatkan sudut kartu, tapi juga memotong dropdown
+   pemilih tim yang lebih tinggi dari kartunya — dibuka sementara saat memilih. */
+.match[data-pick="open"] { overflow: visible; }
 
 .match__head {
   display: flex; align-items: center; gap: var(--margin-s);
@@ -497,6 +483,49 @@ img { max-width: 100%; display: block; }
 }
 .side__name:hover { border-color: var(--input-border-hover); }
 .side__name:focus { border-color: var(--primary-main); }
+
+/* Pemilih tim — nama masih bisa diketik bebas (untuk label sementara seperti
+   "JUARA POL A"), tapi tombol di sebelahnya membuka daftar tim berlogo supaya
+   babak semifinal/perebutan 3/final tinggal pilih, bukan mengetik manual. */
+.side__pick { position: relative; min-width: 0; display: flex; gap: var(--margin-xs); }
+.side__pick .side__name { flex: 1; }
+.side__pickbtn {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  background: var(--app-surface);
+  border: var(--stroke-xs) solid var(--input-border);
+  border-radius: var(--radius-s);
+  color: var(--app-text-muted);
+  font-size: var(--text-xs);
+  transition: background .15s, border-color .15s, color .15s;
+}
+.side__pickbtn:hover { background: var(--app-surface-sunken); border-color: var(--input-border-hover); color: var(--app-text); }
+.side__pickbtn[aria-expanded="true"] { border-color: var(--primary-main); color: var(--primary-main); }
+
+.teampop {
+  position: absolute; z-index: 30;
+  top: calc(100% + var(--margin-xs)); left: 0; right: 0;
+  min-width: 172px;                    /* tetap terbaca di layout 3-4 meja */
+  max-height: 264px; overflow-y: auto;
+  padding: var(--margin-xs);
+  background: var(--app-surface);
+  border: var(--stroke-xs) solid var(--app-border-strong);
+  border-radius: var(--radius-s);
+  box-shadow: var(--elevation-2);
+}
+.teampop__item {
+  width: 100%;
+  display: flex; align-items: center; gap: var(--margin-s);
+  padding: var(--margin-xs) var(--margin-s);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-s); font-weight: var(--weight-bold);
+  letter-spacing: .02em; text-align: left;
+  transition: background .15s, color .15s;
+}
+.teampop__item:hover { background: var(--primary-surface); color: var(--primary-main); }
+.teampop__item .plate { width: 26px; height: 26px; font-size: 9px; }
+.teampop__item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .side__score {
   min-width: 58px; text-align: center;
@@ -849,7 +878,7 @@ img { max-width: 100%; display: block; }
     grid-template-areas: "logo name score" "step step step";
   }
   .side__logo { grid-area: logo; width: 40px; height: 40px; }
-  .side__name { grid-area: name; }
+  .side__pick { grid-area: name; }
   .side__score { grid-area: score; }
   .stepper { grid-area: step; }
   .stepper__btn { flex: 1; }
@@ -886,10 +915,6 @@ img { max-width: 100%; display: block; }
     </div>
   </header>
 
-  <div class="filewarn" id="filewarn" hidden>
-    <span>⚠ Dibuka langsung dari file — sinkronisasi skor ke jendela display bisa gagal di sebagian browser. Jalankan lewat server HTTP lokal (mis. <code>python -m http.server</code>) untuk hasil yang konsisten.</span>
-    <button class="filewarn__close" onclick="document.getElementById('filewarn').hidden = true" aria-label="Tutup peringatan">✕</button>
-  </div>
 
   <div class="workspace">
     <main class="board" id="board" data-count="4"></main>
@@ -1038,11 +1063,12 @@ window.addEventListener('storage', e => {
 });
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   SYNC · SERVER (opsional — admin & display di perangkat berbeda)
-   Aktif otomatis kalau halaman ini dilayani oleh server.ps1 (yang menyediakan
-   /api/state). Kalau tidak ada server (dibuka via file:// atau hosting statis
-   biasa), fetch di bawah gagal dan otomatis diam — localStorage/BroadcastChannel
-   di atas tetap jadi jalur sinkron untuk satu perangkat seperti sebelumnya.
+   SYNC · SERVER — inilah yang membuat admin & display bisa di dua perangkat
+   berbeda. /api/state dilayani Netlify Function (netlify/functions/state.mjs)
+   yang menyimpan skor di Netlify Blobs.
+   Kalau endpoint-nya tidak ada, fetch gagal dan modul ini diam sendiri:
+   localStorage + BroadcastChannel di atas tetap menyinkronkan antar tab di
+   satu perangkat. JANGAN hapus syncToServer() — saveState() memanggilnya.
    ═══════════════════════════════════════════════════════════════════════════ */
 let netSyncOn = false;
 
@@ -1090,6 +1116,19 @@ function plateHTML(name, cls) {
   return '<div class="plate plate--mono ' + cls + '">' + esc(monogram(name)) + '</div>';
 }
 
+/* Daftar tim berlogo untuk dropdown di kartu meja. Nama tim dibawa lewat
+   data-team, bukan diselipkan ke dalam string onclick, supaya tanda kutip
+   pada nama tim tidak pernah bisa merusak atributnya. */
+function teamPopHTML(id, key) {
+  return '<div class="teampop" hidden>' +
+    Object.keys(LOGOS).map(n =>
+      '<button class="teampop__item" type="button" data-team="' + esc(n) + '"' +
+      ' onclick="pickTeam(' + id + ', \'' + key + '\', this.dataset.team)">' +
+        plateHTML(n, '') + '<span>' + esc(n) + '</span>' +
+      '</button>').join('') +
+  '</div>';
+}
+
 const getTable = id => state.tables.find(t => t.id === id);
 
 const pillHTML = status =>
@@ -1122,9 +1161,15 @@ function matchCardHTML(t) {
   const side = (key, name, score, leading) =>
     '<div class="side' + (leading ? ' side--leading' : '') + '" data-side="' + key + '">' +
       plateHTML(name, 'side__logo') +
-      '<input class="side__name" type="text" value="' + esc(name) + '" maxlength="18" list="team-names"' +
-      ' aria-label="Nama tim ' + key + ' meja ' + t.id + '"' +
-      ' oninput="updateTeam(' + t.id + ', \'' + key + '\', this.value)">' +
+      '<div class="side__pick">' +
+        '<input class="side__name" type="text" value="' + esc(name) + '" maxlength="18" list="team-names"' +
+        ' aria-label="Nama tim ' + key + ' meja ' + t.id + '"' +
+        ' oninput="updateTeam(' + t.id + ', \'' + key + '\', this.value)">' +
+        '<button class="side__pickbtn" type="button" aria-expanded="false"' +
+        ' aria-label="Pilih tim ' + key + ' meja ' + t.id + ' dari daftar"' +
+        ' onclick="toggleTeamPop(this)">▾</button>' +
+        teamPopHTML(t.id, key) +
+      '</div>' +
       '<div class="side__score u-num">' + score + '</div>' +
       '<div class="stepper">' +
         '<button class="stepper__btn stepper__btn--dec" aria-label="Kurangi skor tim ' + key + '"' +
@@ -1229,12 +1274,47 @@ function updateTeam(id, side, value) {
   const name = value.toUpperCase();
   if (side === 'A') t.teamA = name; else t.teamB = name;
   saveState();
+  refreshSideLogo(id, side, name);
+  renderDisplay();
+}
+
+/* Tukar hanya logo barisnya, tanpa render ulang kartu — supaya fokus dan
+   posisi kursor di input nama tidak hilang saat mengetik. Selektornya harus
+   .side__logo, bukan .plate: dropdown tim juga berisi .plate. */
+function refreshSideLogo(id, side, name) {
+  const row = document.querySelector('#card-' + id + ' .side[data-side="' + side + '"]');
+  if (!row) return;
+  const plate = row.querySelector('.side__logo');
+  if (plate) plate.outerHTML = plateHTML(name, 'side__logo');
+}
+
+function toggleTeamPop(btn) {
+  const pop = btn.parentElement.querySelector('.teampop');
+  const willOpen = pop.hidden;
+  closeTeamPops();
+  if (willOpen) {
+    pop.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    const card = btn.closest('.match');
+    if (card) card.dataset.pick = 'open';
+  }
+}
+
+function closeTeamPops() {
+  document.querySelectorAll('.teampop').forEach(p => { p.hidden = true; });
+  document.querySelectorAll('.side__pickbtn').forEach(b => b.setAttribute('aria-expanded', 'false'));
+  document.querySelectorAll('.match[data-pick="open"]').forEach(c => { delete c.dataset.pick; });
+}
+
+function pickTeam(id, side, name) {
+  closeTeamPops();
+  const t = getTable(id);
+  if (side === 'A') t.teamA = name; else t.teamB = name;
+  saveState();
 
   const row = document.querySelector('#card-' + id + ' .side[data-side="' + side + '"]');
-  if (row) {
-    const plate = row.querySelector('.plate');
-    if (plate) plate.outerHTML = plateHTML(name, 'side__logo');
-  }
+  if (row) row.querySelector('.side__name').value = name;
+  refreshSideLogo(id, side, name);
   renderDisplay();
 }
 
@@ -1413,8 +1493,14 @@ function toggleFullscreen() {
 }
 
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeTeamPops();
   const open = document.getElementById('display').dataset.open === 'true';
   if (e.key === 'Escape' && open && !document.fullscreenElement) closeDisplay();
+});
+
+/* Klik di luar area pemilih menutup dropdown tim yang sedang terbuka */
+document.addEventListener('click', e => {
+  if (!e.target.closest('.side__pick')) closeTeamPops();
 });
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1437,8 +1523,6 @@ document.getElementById('toggle-aside').addEventListener('click', () => {
   const el = document.getElementById('admin');
   el.dataset.aside = (el.dataset.aside === 'open') ? 'closed' : 'open';
 });
-
-if (location.protocol === 'file:') document.getElementById('filewarn').hidden = false;
 
 renderTeamNames();
 renderTableCount();
