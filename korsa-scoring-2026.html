@@ -163,17 +163,14 @@
      · Stroke dinaikkan satu langkah — garis 1px hilang di pitch LED besar.
    ═══════════════════════════════════════════════════════════════════════════ */
 #display {
-  /* Sisi luar panel LED sering terpotong video processor.
-     Naikkan kalau tepi masih kena crop. */
-  --vt-safe: 1.2%;
-
-  /* Area aman itu zona mati — harus sewarna ground layar, bukan sewarna garis
-     pemisah sel. Dulu ia memakai --vt-gap sehingga di mode terang muncul
-     bingkai abu muda mengelilingi papan, dan di rasio 1:1 ada sambungan
-     terlihat dengan area letterbox. */
+  /* Area aman anti-crop. Default 0 supaya papan penuh sampai tepi layar —
+     berapa pun nilainya, ia tampak sebagai bingkai mengelilingi papan.
+     Naikkan (mis. 1.2%) HANYA kalau video processor panel LED terbukti
+     memotong tepi; --vt-frame adalah warna zona mati itu. */
+  --vt-safe: 0;
   --vt-frame: #000000;
 
-  /* Garis pemisah strip header sel. Di mode gelap strip sewarna badan sel
+  /* Garis pemisah strip kepala sel. Di mode gelap strip sewarna badan sel
      sehingga garis ini yang memikul pembedaan; navy-50 lolos 3:1 di kedua
      mode (5,05:1 di navy-100, 4,31:1 di navy-90). */
   --vt-rule: var(--korsa-navy-50);
@@ -210,20 +207,32 @@
   --vt-plate:            transparent;  /* logo tim sudah dirancang untuk gelap */
   --vt-meter-track:      var(--korsa-navy-90);
   --vt-meter-track-lead: var(--korsa-navy-100);
+
+  --vt-cellhead-fg:      var(--neutral-10);
+  --vt-phase-fg:         var(--accent-main);   /* oranye-60 kuat di atas navy */
 }
 
 /* ── MODE TERANG ──────────────────────────────────────────────────────────
    Untuk panel LED outdoor atau GOR yang terang, dan proyektor.
-   Strip header/footer tetap navy agar identitas KORSA terjaga; badan sel
-   yang berubah putih. Plate logo tetap gelap — logo HUMACTIVE, NITREA,
-   PRECIPALM, dan BIODEX bergaris putih dan hilang di latar terang.         */
+   Navy disisakan untuk chrome global saja (header & footer panel) supaya
+   identitas KORSA terjaga. Strip kepala sel dulu memakai navy-90 yang PERSIS
+   sama dengan header global, jadi keduanya berbobot setara dan papan terbaca
+   sebagai tumpukan pita navy; sekarang strip itu jadi permukaan terang
+   sehingga sel putih terbaca sebagai panel bersih dan hierarkinya jelas.
+   Plate logo tetap gelap — logo HUMACTIVE, NITREA, PRECIPALM, dan BIODEX
+   bergaris putih dan hilang di latar terang.                               */
 #display[data-vt-mode="light"] {
   --vt-cell:             var(--neutral-10);
-  --vt-cell-head:        var(--korsa-navy-90);   /* strip gelap di badan putih */
+  --vt-cell-head:        var(--neutral-30);      /* beda dari sel selesai (neutral-20) */
   --vt-cell-finished:    var(--neutral-20);
   --vt-lift:             var(--korsa-navy-90);
   --vt-gap:              var(--neutral-40);
   --vt-band-lead:        var(--korsa-orange-10);
+  --vt-rule:             var(--neutral-50);      /* navy-50 terlalu mencolok di strip terang */
+
+  --vt-cellhead-fg:      var(--korsa-navy-100);
+  /* Oranye-60 cuma ±3:1 di atas permukaan terang — turun ke oranye-80 (±6:1) */
+  --vt-phase-fg:         var(--accent-pressed);
 
   --vt-text:             var(--korsa-navy-100);
   --vt-text-dim:         var(--korsa-navy-70);
@@ -751,14 +760,14 @@ img { max-width: 100%; display: block; }
   font-weight: var(--weight-black);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
-  color: var(--vt-onstrip);
+  color: var(--vt-cellhead-fg);
 }
 .cell__phase {
   font-size: clamp(9px, 1.5vmin, 17px);
   font-weight: var(--weight-black);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
-  color: var(--accent-main);
+  color: var(--vt-phase-fg);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .cell__head .pill {
