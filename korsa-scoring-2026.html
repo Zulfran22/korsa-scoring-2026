@@ -699,18 +699,25 @@ img { max-width: 100%; display: block; }
 /* Header: warna rata, tanpa gradasi — gradasi halus jadi pita di panel LED */
 .vt__head {
   flex: 0 0 auto;
-  display: flex; align-items: center; gap: 3%;
-  padding: 1.6% 2.8%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center; gap: 3%;
+  min-height: clamp(76px, 13vh, 118px);
+  padding: clamp(10px, 1.5vh, 18px) 2.8%;
   background: var(--vt-lift);
   border-bottom: var(--stroke-l) solid var(--accent-main);
 }
-.vt__logo { height: clamp(56px, 11vmin, 140px); width: auto; }
+.vt__logo { height: clamp(56px, 9.2vmin, 112px); width: auto; }
 .vt__event {
-  font-size: clamp(20px, 4.1vmin, 52px);
+  min-width: 0;
+  font-size: clamp(24px, 4.1vmin, 48px);
   font-weight: var(--weight-black);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: var(--vt-onstrip);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .vt__event em { font-style: normal; color: var(--accent-main); }
 .vt__clock {
@@ -720,6 +727,15 @@ img { max-width: 100%; display: block; }
   letter-spacing: .06em;
   color: var(--accent-main);
 }
+
+.vt[data-ratio="square"] .vt__head {
+  min-height: clamp(66px, 11vh, 96px);
+  gap: 2%;
+  padding-inline: 2.2%;
+}
+.vt[data-ratio="square"] .vt__logo { height: clamp(44px, 7.2vmin, 82px); }
+.vt[data-ratio="square"] .vt__event { font-size: clamp(20px, 3.35vmin, 38px); }
+.vt[data-ratio="square"] .vt__clock { font-size: clamp(13px, 2.25vmin, 26px); }
 
 .vt__grid {
   flex: 1; min-height: 0;
@@ -750,20 +766,25 @@ img { max-width: 100%; display: block; }
 
 .cell__head {
   flex: 0 0 auto;
-  display: flex; align-items: center; gap: var(--margin-l);
-  padding: 2.7% 3.4% 2.3%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center; gap: clamp(8px, 1.4vmin, 18px);
+  min-height: clamp(58px, 10.5vh, 86px);
+  padding: clamp(8px, 1.2vh, 14px) 3.4%;
   background: var(--vt-cell-head);
   border-bottom: var(--stroke-m) solid var(--vt-rule);
 }
 .cell__table {
-  font-size: clamp(24px, 5.2vmin, 64px);
+  font-size: clamp(25px, 4.4vmin, 52px);
   font-weight: var(--weight-black);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: var(--vt-cellhead-fg);
+  white-space: nowrap;
 }
 .cell__phase {
-  font-size: clamp(11px, 2vmin, 24px);
+  min-width: 0;
+  font-size: clamp(11px, 1.75vmin, 20px);
   font-weight: var(--weight-black);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
@@ -771,27 +792,43 @@ img { max-width: 100%; display: block; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .cell__head .pill {
-  margin-left: auto; flex-shrink: 0;
-  height: auto; padding: .36em 1em;
-  font-size: clamp(11px, 1.9vmin, 23px);
+  justify-self: end;
+  min-width: 0;
+  height: auto; padding: .34em .85em;
+  font-size: clamp(10px, 1.55vmin, 18px);
   letter-spacing: var(--tracking-wider);
+  white-space: nowrap;
 }
 .cell__head .pill--live     { background: var(--vt-live);       color: var(--vt-live-fg); }
 .cell__head .pill--waiting  { background: var(--korsa-navy-70); color: var(--neutral-10); }
 .cell__head .pill--finished { background: var(--korsa-navy-40); color: var(--korsa-navy-100); }
 
+.vt[data-ratio="square"] .cell__head {
+  gap: clamp(6px, 1vmin, 12px);
+  min-height: clamp(54px, 9vh, 72px);
+  padding-inline: 2.6%;
+}
+.vt[data-ratio="square"] .cell__table { font-size: clamp(22px, 3.8vmin, 42px); }
+.vt[data-ratio="square"] .cell__phase { font-size: clamp(10px, 1.55vmin, 17px); }
+.vt[data-ratio="square"] .cell__head .pill {
+  padding: .3em .7em;
+  font-size: clamp(9px, 1.35vmin, 15px);
+}
+
 /* ── Baris skor ────────────────────────────────────────────────────────── */
 .cell__match {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column; justify-content: center;
-  padding: 1.8% 3.4%; gap: 2.2%;
+  padding: clamp(8px, 1.6vh, 16px) 3.4%; gap: clamp(8px, 2vh, 16px);
+  overflow: hidden;
 }
 
 .row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center; gap: 3.4%;
-  padding: 1.6% 2.4%;
+  min-height: 0;
+  padding: clamp(6px, 1.2vh, 12px) 2.4%;
   border-radius: var(--radius-s);
   border-left: var(--stroke-xl) solid transparent;
 }
@@ -803,8 +840,8 @@ img { max-width: 100%; display: block; }
 .row__name {
   font-size: var(--name-size);
   font-weight: var(--weight-black);
-  letter-spacing: .03em;
-  line-height: 1.04;
+  letter-spacing: .02em;
+  line-height: 1.18;
   text-transform: uppercase;
   color: var(--vt-text-dim);
   overflow-wrap: anywhere;
@@ -826,11 +863,15 @@ img { max-width: 100%; display: block; }
 .cell[data-status="finished"] .row--leading .row__meter i { background: var(--vt-live); }
 
 .row__score {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   font-size: var(--score-size);
   font-weight: var(--weight-black);
-  line-height: .9;
+  line-height: 1.15;
   color: var(--vt-trail);
   min-width: 1.7em;
+  min-height: 1.28em;
   text-align: right;
 }
 .row--leading .row__score { color: var(--vt-lead); }
@@ -838,10 +879,10 @@ img { max-width: 100%; display: block; }
 
 /* Skala tipografi per layout — dinaikkan untuk jarak pandang GOR */
 .vt__grid[data-layout="4"] .cell,
-.vt__grid[data-layout="3"] .cell { --logo-size: clamp(38px, 7.4vmin, 92px);  --name-size: clamp(18px, 3.6vmin, 50px); --score-size: clamp(42px, 8.6vmin, 112px); }
-.vt__grid[data-layout="3"] > :first-child { --logo-size: clamp(46px, 9.8vmin, 124px);  --name-size: clamp(24px, 5vmin, 66px); --score-size: clamp(54px, 12.5vmin, 156px); }
-.vt__grid[data-layout="2"] .cell { --logo-size: clamp(48px, 11vmin, 138px); --name-size: clamp(24px, 5.4vmin, 70px); --score-size: clamp(58px, 13.5vmin, 168px); }
-.vt__grid[data-layout="1"] .cell { --logo-size: clamp(64px, 18vmin, 228px); --name-size: clamp(34px, 8.2vmin, 108px); --score-size: clamp(84px, 22vmin, 282px); }
+.vt__grid[data-layout="3"] .cell { --logo-size: clamp(34px, 6.7vmin, 82px);  --name-size: clamp(20px, 3.2vmin, 42px); --score-size: clamp(42px, 7.6vmin, 98px); }
+.vt__grid[data-layout="3"] > :first-child { --logo-size: clamp(42px, 8.7vmin, 108px);  --name-size: clamp(25px, 4.4vmin, 58px); --score-size: clamp(56px, 11vmin, 138px); }
+.vt__grid[data-layout="2"] .cell { --logo-size: clamp(46px, 9.4vmin, 118px); --name-size: clamp(28px, 4.9vmin, 64px); --score-size: clamp(62px, 12vmin, 150px); }
+.vt__grid[data-layout="1"] .cell { --logo-size: clamp(64px, 16vmin, 210px); --name-size: clamp(40px, 7.6vmin, 100px); --score-size: clamp(90px, 20vmin, 260px); }
 
 .cell__tag {
   align-self: center; margin-top: 1.4%;
@@ -859,35 +900,37 @@ img { max-width: 100%; display: block; }
 .cell__wait {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4%; padding: 4%;
+  gap: clamp(10px, 3%, 22px); padding: clamp(12px, 3%, 24px);
   text-align: center;
+  overflow: hidden;
 }
 .cell__wait-label {
-  font-size: clamp(14px, 2.5vmin, 30px);
+  font-size: clamp(16px, 2.3vmin, 28px);
   font-weight: var(--weight-black);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: var(--vt-lead);
 }
-.cell__wait-fixture { display: flex; align-items: center; justify-content: center; gap: 4%; width: 100%; }
+.cell__wait-fixture { display: flex; align-items: center; justify-content: center; gap: 4%; width: 100%; min-height: 0; }
 .cell__wait-team { display: flex; flex-direction: column; align-items: center; gap: .5em; min-width: 0; flex: 1; }
 .cell__wait-team .plate { width: var(--logo-size); height: var(--logo-size); font-size: calc(var(--logo-size) * .28); }
 .cell__wait-team span {
-  font-size: var(--name-size);
+  font-size: calc(var(--name-size) * .9);
   font-weight: var(--weight-black);
-  letter-spacing: .03em;
+  letter-spacing: .02em;
+  line-height: 1.18;
   text-transform: uppercase;
   color: var(--vt-text);
   overflow-wrap: anywhere;
 }
 .cell__wait-vs {
-  font-size: var(--name-size);
+  font-size: calc(var(--name-size) * .86);
   font-weight: var(--weight-black);
   color: var(--vt-text-quiet);
   flex-shrink: 0;
 }
 .cell__wait-time {
-  font-size: clamp(16px, 3vmin, 36px);
+  font-size: clamp(16px, 2.5vmin, 30px);
   font-weight: var(--weight-black);
   letter-spacing: var(--tracking-wide);
   color: var(--vt-text-dim);
