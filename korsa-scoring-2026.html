@@ -885,10 +885,16 @@ img { max-width: 100%; display: block; }
 
 /* Skala tipografi per layout — dinaikkan untuk jarak pandang GOR */
 .vt__grid[data-layout="4"] .cell,
-.vt__grid[data-layout="3"] .cell { --logo-size: clamp(34px, 6.7vmin, 82px);  --name-size: clamp(20px, 3.2vmin, 42px); --score-size: clamp(42px, 7.6vmin, 98px); }
-.vt__grid[data-layout="3"] > :first-child { --logo-size: clamp(42px, 8.7vmin, 108px);  --name-size: clamp(25px, 4.4vmin, 58px); --score-size: clamp(56px, 11vmin, 138px); }
-.vt__grid[data-layout="2"] .cell { --logo-size: clamp(46px, 9.4vmin, 118px); --name-size: clamp(28px, 4.9vmin, 64px); --score-size: clamp(62px, 12vmin, 150px); }
-.vt__grid[data-layout="1"] .cell { --logo-size: clamp(64px, 16vmin, 210px); --name-size: clamp(40px, 7.6vmin, 100px); --score-size: clamp(90px, 20vmin, 260px); }
+.vt__grid[data-layout="3"] .cell { --logo-size: clamp(38px, 7.2vmin, 88px);  --name-size: clamp(28px, 5vmin, 60px); --score-size: clamp(42px, 7.6vmin, 98px); }
+.vt__grid[data-layout="3"] > :first-child { --logo-size: clamp(46px, 9vmin, 112px);  --name-size: clamp(34px, 5.8vmin, 70px); --score-size: clamp(56px, 11vmin, 138px); }
+.vt__grid[data-layout="2"] .cell { --logo-size: clamp(50px, 9.8vmin, 122px); --name-size: clamp(36px, 5.8vmin, 72px); --score-size: clamp(62px, 12vmin, 150px); }
+.vt__grid[data-layout="1"] .cell { --logo-size: clamp(68px, 16vmin, 210px); --name-size: clamp(48px, 8.4vmin, 110px); --score-size: clamp(90px, 20vmin, 260px); }
+
+/* Nama tim adalah informasi utama; label meja dibuat satu tingkat lebih kecil. */
+.vt__grid[data-layout="4"] .cell__table,
+.vt__grid[data-layout="3"] .cell__table { font-size: clamp(22px, 3.4vmin, 40px); }
+.vt[data-ratio="square"] .vt__grid[data-layout="4"] .cell__table,
+.vt[data-ratio="square"] .vt__grid[data-layout="3"] .cell__table { font-size: clamp(20px, 2.9vmin, 34px); }
 
 .cell__tag {
   align-self: center; margin-top: 1.4%;
@@ -938,7 +944,7 @@ img { max-width: 100%; display: block; }
 .cell__wait-team span {
   display: block;
   max-width: 100%;
-  font-size: calc(var(--name-size) * .9);
+  font-size: var(--name-size);
   font-weight: var(--weight-black);
   letter-spacing: .02em;
   line-height: 1.18;
@@ -963,6 +969,33 @@ img { max-width: 100%; display: block; }
   color: var(--vt-text-dim);
 }
 .cell__wait-brand { width: clamp(64px, 19vmin, 240px); }
+
+/* Pada layar yang dibagi 3–4, tiap tim memakai satu baris penuh agar namanya besar. */
+.vt__grid[data-layout="4"] .cell__wait-fixture,
+.vt__grid[data-layout="3"] .cell__wait-fixture {
+  grid-template-columns: 1fr;
+  gap: clamp(4px, .8vh, 8px);
+  width: min(88%, 760px);
+}
+.vt__grid[data-layout="4"] .cell__wait-team,
+.vt__grid[data-layout="3"] .cell__wait-team {
+  grid-template-columns: var(--logo-size) minmax(0, 1fr);
+  grid-template-rows: var(--logo-size);
+  justify-items: start;
+  column-gap: clamp(10px, 2.4%, 20px);
+}
+.vt__grid[data-layout="4"] .cell__wait-team span,
+.vt__grid[data-layout="3"] .cell__wait-team span {
+  align-self: center;
+  justify-self: start;
+  text-align: left;
+}
+.vt__grid[data-layout="4"] .cell__wait-vs,
+.vt__grid[data-layout="3"] .cell__wait-vs {
+  height: auto;
+  justify-self: center;
+  line-height: 1;
+}
 
 /* ── Footer & kontrol ──────────────────────────────────────────────────── */
 .vt__foot {
