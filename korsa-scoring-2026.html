@@ -296,7 +296,7 @@ img { max-width: 100%; display: block; }
 }
 .plate img {
   width: 100%; height: 100%;
-  padding: 7%;
+  padding: 9%;
   object-fit: contain;
   object-position: center;
 }
@@ -305,7 +305,10 @@ img { max-width: 100%; display: block; }
   letter-spacing: var(--tracking-wide);
   color: var(--korsa-navy-40);
 }
-#display .plate { background: var(--vt-plate); }
+#display .plate {
+  background: var(--vt-plate);
+  overflow: visible;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    6 · KONTROL
@@ -840,7 +843,11 @@ img { max-width: 100%; display: block; }
 .row--leading { background: var(--vt-band-lead); border-left-color: var(--vt-lead); }
 .cell[data-status="finished"] .row--leading { border-left-color: var(--vt-live); }
 
-.row__logo { width: var(--logo-size); height: var(--logo-size); font-size: calc(var(--logo-size) * .28); }
+.row__logo {
+  width: var(--logo-size);
+  height: var(--logo-size);
+  font-size: calc(var(--logo-size) * .28);
+}
 .row__team { min-width: 0; }
 .row__name {
   font-size: var(--name-size);
@@ -892,9 +899,9 @@ img { max-width: 100%; display: block; }
 
 /* Nama tim adalah informasi utama; label meja dibuat satu tingkat lebih kecil. */
 .vt__grid[data-layout="4"] .cell__table,
-.vt__grid[data-layout="3"] .cell__table { font-size: clamp(22px, 3.4vmin, 40px); }
+.vt__grid[data-layout="3"] .cell__table { font-size: clamp(26px, 4vmin, 46px); }
 .vt[data-ratio="square"] .vt__grid[data-layout="4"] .cell__table,
-.vt[data-ratio="square"] .vt__grid[data-layout="3"] .cell__table { font-size: clamp(20px, 2.9vmin, 34px); }
+.vt[data-ratio="square"] .vt__grid[data-layout="3"] .cell__table { font-size: clamp(27px, 3.8vmin, 42px); }
 
 .cell__tag {
   align-self: center; margin-top: 1.4%;
@@ -940,7 +947,11 @@ img { max-width: 100%; display: block; }
   width: 100%;
   min-width: 0;
 }
-.cell__wait-team .plate { width: var(--logo-size); height: var(--logo-size); font-size: calc(var(--logo-size) * .28); }
+.cell__wait-team .plate {
+  width: var(--logo-size);
+  height: var(--logo-size);
+  font-size: calc(var(--logo-size) * .28);
+}
 .cell__wait-team span {
   display: block;
   max-width: 100%;
