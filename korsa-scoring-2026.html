@@ -294,7 +294,12 @@ img { max-width: 100%; display: block; }
   border-radius: var(--radius-s);
   overflow: hidden;
 }
-.plate img { width: 100%; height: 100%; object-fit: contain; }
+.plate img {
+  width: 100%; height: 100%;
+  padding: 7%;
+  object-fit: contain;
+  object-position: center;
+}
 .plate--mono {
   font-weight: var(--weight-black);
   letter-spacing: var(--tracking-wide);
@@ -826,7 +831,7 @@ img { max-width: 100%; display: block; }
 .row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center; gap: 3.4%;
+  align-items: center; gap: 2.6%;
   min-height: 0;
   padding: clamp(6px, 1.2vh, 12px) 2.4%;
   border-radius: var(--radius-s);
@@ -844,7 +849,8 @@ img { max-width: 100%; display: block; }
   line-height: 1.18;
   text-transform: uppercase;
   color: var(--vt-text-dim);
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .row--leading .row__name { color: var(--vt-text); }
 
@@ -870,7 +876,7 @@ img { max-width: 100%; display: block; }
   font-weight: var(--weight-black);
   line-height: 1.15;
   color: var(--vt-trail);
-  min-width: 1.7em;
+  min-width: 1.35em;
   min-height: 1.28em;
   text-align: right;
 }
@@ -911,19 +917,40 @@ img { max-width: 100%; display: block; }
   text-transform: uppercase;
   color: var(--vt-lead);
 }
-.cell__wait-fixture { display: flex; align-items: center; justify-content: center; gap: 4%; width: 100%; min-height: 0; }
-.cell__wait-team { display: flex; flex-direction: column; align-items: center; gap: .5em; min-width: 0; flex: 1; }
+.cell__wait-fixture {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: 4%;
+  width: 100%;
+  min-height: 0;
+}
+.cell__wait-team {
+  display: grid;
+  grid-template-rows: var(--logo-size) auto;
+  justify-items: center;
+  align-items: center;
+  row-gap: .55em;
+  width: 100%;
+  min-width: 0;
+}
 .cell__wait-team .plate { width: var(--logo-size); height: var(--logo-size); font-size: calc(var(--logo-size) * .28); }
 .cell__wait-team span {
+  display: block;
+  max-width: 100%;
   font-size: calc(var(--name-size) * .9);
   font-weight: var(--weight-black);
   letter-spacing: .02em;
   line-height: 1.18;
   text-transform: uppercase;
   color: var(--vt-text);
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .cell__wait-vs {
+  display: flex;
+  align-items: center;
+  height: var(--logo-size);
   font-size: calc(var(--name-size) * .86);
   font-weight: var(--weight-black);
   color: var(--vt-text-quiet);
@@ -1498,6 +1525,27 @@ function renderDisplay() {
   if (!grid) return;
   grid.dataset.layout = state.activeMeja;
   grid.innerHTML = state.tables.filter(t => t.id <= state.activeMeja).map(cellHTML).join('');
+  requestAnimationFrame(fitDisplayTeamNames);
+}
+
+/* Pertahankan semua nama kontingen dalam satu baris tanpa melewati ruang skor. */
+function fitDisplayTeamNames() {
+  document.querySelectorAll('#vt-grid .row__name, #vt-grid .cell__wait-team span').forEach(el => {
+    el.style.fontSize = '';
+    const available = el.clientWidth;
+    const preferred = parseFloat(getComputedStyle(el).fontSize);
+    if (!available || el.scrollWidth <= available) return;
+
+    let low = Math.max(12, preferred * .48);
+    let high = preferred;
+    for (let i = 0; i < 8; i++) {
+      const size = (low + high) / 2;
+      el.style.fontSize = size + 'px';
+      if (el.scrollWidth <= available) low = size;
+      else high = size;
+    }
+    el.style.fontSize = low + 'px';
+  });
 }
 
 function cellHTML(t) {
@@ -1599,6 +1647,7 @@ function toggleRatio() {
 function syncRatio() {
   document.getElementById('vt').dataset.ratio = state.ratio;
   document.getElementById('btn-ratio').textContent = (state.ratio === 'fill') ? '1:1' : 'Isi layar';
+  requestAnimationFrame(fitDisplayTeamNames);
 }
 
 function toggleFullscreen() {
@@ -1611,6 +1660,8 @@ document.addEventListener('keydown', e => {
   const open = document.getElementById('display').dataset.open === 'true';
   if (e.key === 'Escape' && open && !document.fullscreenElement) closeDisplay();
 });
+
+window.addEventListener('resize', () => requestAnimationFrame(fitDisplayTeamNames));
 
 /* Klik di luar area pemilih menutup dropdown tim yang sedang terbuka */
 document.addEventListener('click', e => {
