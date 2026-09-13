@@ -784,12 +784,14 @@ img { max-width: 100%; display: block; }
   border-bottom: var(--stroke-m) solid var(--vt-rule);
 }
 .cell__table {
-  font-size: clamp(25px, 4.4vmin, 52px);
+  font-size: clamp(30px, 6vmin, 68px);      /* max +30%, vmin +36% */
   font-weight: var(--weight-black);
-  letter-spacing: var(--tracking-wider);
+  letter-spacing: var(--tracking-wide);      /* longgar -> ketat, hemat ruang */
   text-transform: uppercase;
   color: var(--vt-cellhead-fg);
   white-space: nowrap;
+  padding: clamp(6px, 1vh, 12px) 3.4%;       /* padding tipis, tinggi tetap */
+  line-height: 1;
 }
 .cell__phase {
   min-width: 0;
