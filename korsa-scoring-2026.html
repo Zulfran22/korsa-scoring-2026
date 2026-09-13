@@ -897,6 +897,16 @@ img { max-width: 100%; display: block; }
 .vt__grid[data-layout="2"] .cell { --logo-size: clamp(50px, 9.8vmin, 122px); --name-size: clamp(44px, 7.4vmin, 92px); --score-size: clamp(62px, 12vmin, 150px); }
 .vt__grid[data-layout="1"] .cell { --logo-size: clamp(68px, 16vmin, 210px); --name-size: clamp(58px, 9.5vmin, 126px); --score-size: clamp(90px, 20vmin, 260px); }
 
+/* Panel setengah tinggi tetap memuat logo dan skor besar tanpa menyentuh footer. */
+.vt__grid[data-layout="2"] .cell__match,
+.vt__grid[data-layout="3"] > :first-child .cell__match {
+  padding-block: clamp(2px, .35vh, 4px);
+  gap: clamp(2px, .35vh, 4px);
+}
+.vt__grid[data-layout="2"] .row,
+.vt__grid[data-layout="3"] > :first-child .row { padding-block: 0; }
+.vt__grid[data-layout="2"] .row__score { min-height: 1.15em; }
+
 /* Nama tim adalah informasi utama; label meja dibuat satu tingkat lebih kecil. */
 .vt__grid[data-layout="4"] .cell__table,
 .vt__grid[data-layout="3"] .cell__table { font-size: clamp(26px, 4vmin, 46px); }
