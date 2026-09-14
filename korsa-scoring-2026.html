@@ -776,7 +776,7 @@ img { max-width: 100%; display: block; }
 .cell__head {
   flex: 0 0 auto;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center; gap: clamp(8px, 1.4vmin, 18px);
   min-height: clamp(58px, 10.5vh, 86px);
   padding: clamp(8px, 1.2vh, 14px) 3.4%;
@@ -794,6 +794,8 @@ img { max-width: 100%; display: block; }
 }
 .cell__phase {
   min-width: 0;
+  justify-self: center;
+  text-align: center;
   font-size: clamp(11px, 1.75vmin, 20px);
   font-weight: var(--weight-black);
   letter-spacing: var(--tracking-wider);
