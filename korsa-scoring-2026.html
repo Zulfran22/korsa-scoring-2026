@@ -776,7 +776,7 @@ img { max-width: 100%; display: block; }
 .cell__head {
   flex: 0 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center; gap: clamp(8px, 1.4vmin, 18px);
   min-height: clamp(58px, 10.5vh, 86px);
   padding: clamp(8px, 1.2vh, 14px) 3.4%;
@@ -794,8 +794,6 @@ img { max-width: 100%; display: block; }
 }
 .cell__phase {
   min-width: 0;
-  justify-self: center;
-  text-align: center;
   font-size: clamp(11px, 1.75vmin, 20px);
   font-weight: var(--weight-black);
   letter-spacing: var(--tracking-wider);
@@ -1004,8 +1002,9 @@ img { max-width: 100%; display: block; }
 }
 .vt__grid[data-layout="4"] .cell__wait-team,
 .vt__grid[data-layout="3"] .cell__wait-team {
-  grid-template-columns: var(--logo-size) minmax(0, 1fr);
+  grid-template-columns: var(--logo-size) minmax(0, max-content);
   grid-template-rows: var(--logo-size);
+  justify-content: center;
   justify-items: start;
   column-gap: clamp(10px, 2.4%, 20px);
 }
