@@ -627,12 +627,14 @@ img { max-width: 100%; display: block; }
 /* Garis tipis memisahkan kontrol status dari area skor, biar footer tidak
    terlihat menempel begitu saja di bawah baris tim. */
 .match__foot {
-  display: flex; align-items: center; gap: var(--margin-m);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--margin-m);
   padding: var(--margin-m) var(--margin-l);
   border-top: var(--stroke-xs) solid var(--app-border);
   background: var(--app-surface-sunken);
 }
 .match__foot .segmented { flex: 1; background: var(--app-surface); }
+.btn--display-close { color: var(--primary-main); }
+.btn--display-close:hover { background: var(--primary-surface); color: var(--primary-hover); }
 
 /* ── Panel jadwal ──────────────────────────────────────────────────────── */
 .schedule {
@@ -925,6 +927,72 @@ img { max-width: 100%; display: block; }
   background: var(--vt-live);
   padding: .34em 1.2em;
   border-radius: var(--radius-full);
+}
+
+/* Hasil akhir mendapat panggung sendiri agar pemenang terbaca dari jauh. */
+.cell__result {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(8px, 1.8vmin, 20px);
+  padding: clamp(12px, 2.4vmin, 28px);
+  text-align: center;
+  overflow: hidden;
+}
+.cell__result-label {
+  font-size: clamp(14px, 2vmin, 24px);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--vt-live);
+}
+.cell__result-winner {
+  display: grid;
+  grid-template-columns: auto minmax(0, max-content);
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2vmin, 24px);
+  max-width: 100%;
+}
+.cell__result-logo {
+  width: calc(var(--logo-size) * 1.1);
+  height: calc(var(--logo-size) * 1.1);
+  font-size: calc(var(--logo-size) * .3);
+}
+.cell__result-name {
+  min-width: 0;
+  max-width: 100%;
+  font-size: calc(var(--name-size) * 1.18);
+  font-weight: var(--weight-black);
+  letter-spacing: .02em;
+  line-height: 1.08;
+  text-transform: uppercase;
+  color: var(--vt-text);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.cell__result-score {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: .22em;
+  font-size: calc(var(--score-size) * .76);
+  font-weight: var(--weight-black);
+  line-height: 1;
+  color: var(--vt-trail);
+}
+.cell__result-score .is-winner { color: var(--vt-live); }
+.cell__result-score i { font-style: normal; color: var(--vt-text-quiet); }
+.cell__result-opponent {
+  min-width: 0;
+  max-width: 100%;
+  font-size: clamp(12px, 1.7vmin, 20px);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--vt-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Menunggu ──────────────────────────────────────────────────────────── */
@@ -1402,6 +1470,10 @@ function matchCardHTML(t) {
       '<div class="segmented segmented--status" role="group" aria-label="Status meja ' + t.id + '">' +
         statusBtn('waiting') + statusBtn('live') + statusBtn('finished') +
       '</div>' +
+      (t.status === 'finished'
+        ? '<button class="btn btn--quiet btn--display-close" onclick="toggleTableDisplay(' + t.id + ')">' +
+            (t.hidden ? 'Tampilkan di layar' : 'Tutup dari layar') + '</button>'
+        : '') +
       '<button class="btn btn--quiet" onclick="resetTable(' + t.id + ')">Nol-kan skor</button>' +
     '</footer>' +
   '</section>';
@@ -1532,7 +1604,9 @@ function changeScore(id, side, delta) {
 }
 
 function setStatus(id, status) {
-  getTable(id).status = status;
+  const table = getTable(id);
+  table.status = status;
+  if (status !== 'finished') table.hidden = false;
   saveState();
   refreshCard(id);
   renderDisplay();
@@ -1540,7 +1614,16 @@ function setStatus(id, status) {
 
 function resetTable(id) {
   const t = getTable(id);
-  t.scoreA = 0; t.scoreB = 0; t.status = 'waiting';
+  t.scoreA = 0; t.scoreB = 0; t.status = 'waiting'; t.hidden = false;
+  saveState();
+  refreshCard(id);
+  renderDisplay();
+}
+
+function toggleTableDisplay(id) {
+  const t = getTable(id);
+  if (t.status !== 'finished') return;
+  t.hidden = !t.hidden;
   saveState();
   refreshCard(id);
   renderDisplay();
@@ -1558,7 +1641,7 @@ function loadMatch(matchId) {
     if (!confirm(busy + ' Timpa dengan jadwal ini?')) return;
   }
   t.teamA = m.teamA; t.teamB = m.teamB;
-  t.scoreA = 0; t.scoreB = 0; t.status = 'waiting'; t.match = m.id;
+  t.scoreA = 0; t.scoreB = 0; t.status = 'waiting'; t.hidden = false; t.match = m.id;
   state.loaded[m.id] = target;
   saveState();
   renderBoard();
@@ -1586,14 +1669,15 @@ function resetAll() {
 function renderDisplay() {
   const grid = document.getElementById('vt-grid');
   if (!grid) return;
-  grid.dataset.layout = state.activeMeja;
-  grid.innerHTML = state.tables.filter(t => t.id <= state.activeMeja).map(cellHTML).join('');
+  const visibleTables = state.tables.filter(t => t.id <= state.activeMeja && !t.hidden);
+  grid.dataset.layout = visibleTables.length || 1;
+  grid.innerHTML = visibleTables.map(cellHTML).join('');
   requestAnimationFrame(fitDisplayTeamNames);
 }
 
 /* Pertahankan semua nama kontingen dalam satu baris tanpa melewati ruang skor. */
 function fitDisplayTeamNames() {
-  document.querySelectorAll('#vt-grid .row__name, #vt-grid .cell__wait-team span').forEach(el => {
+  document.querySelectorAll('#vt-grid .row__name, #vt-grid .cell__wait-team span, #vt-grid .cell__result-name').forEach(el => {
     el.style.fontSize = '';
     const available = el.clientWidth;
     const preferred = parseFloat(getComputedStyle(el).fontSize);
@@ -1631,6 +1715,26 @@ function cellHTML(t) {
           '<img class="cell__wait-brand" src="' + korsaMark() + '" alt="">' +
           '<div class="cell__wait-label">Menunggu Pertandingan</div>' +
         '</div>';
+  } else if (t.status === 'finished') {
+    const tied = t.scoreA === t.scoreB;
+    const winnerIsA = t.scoreA > t.scoreB;
+    const winner = winnerIsA ? t.teamA : t.teamB;
+    const loser = winnerIsA ? t.teamB : t.teamA;
+    body = '<div class="cell__result">' +
+      '<div class="cell__result-label">' + (tied ? 'Pertandingan selesai' : 'Pemenang') + '</div>' +
+      (tied
+        ? '<div class="cell__result-name">Hasil imbang</div>'
+        : '<div class="cell__result-winner">' +
+            plateHTML(winner, 'cell__result-logo') +
+            '<div class="cell__result-name">' + esc(winner) + '</div>' +
+          '</div>') +
+      '<div class="cell__result-score u-num">' +
+        '<span class="' + (winnerIsA && !tied ? 'is-winner' : '') + '">' + t.scoreA + '</span>' +
+        '<i>:</i>' +
+        '<span class="' + (!winnerIsA && !tied ? 'is-winner' : '') + '">' + t.scoreB + '</span>' +
+      '</div>' +
+      (!tied ? '<div class="cell__result-opponent">Mengalahkan ' + esc(loser) + '</div>' : '') +
+    '</div>';
   } else {
     const row = (name, score, other, leading) =>
       '<div class="row' + (leading ? ' row--leading' : '') + '">' +
@@ -1645,10 +1749,6 @@ function cellHTML(t) {
     body = '<div class="cell__match">' +
              row(t.teamA, t.scoreA, t.scoreB, t.scoreA > t.scoreB) +
              row(t.teamB, t.scoreB, t.scoreA, t.scoreB > t.scoreA) +
-             (t.status === 'finished'
-               ? '<div class="cell__tag">' + (t.scoreA === t.scoreB ? 'Selesai' : 'Pemenang · ' +
-                   esc(t.scoreA > t.scoreB ? t.teamA : t.teamB)) + '</div>'
-               : '') +
            '</div>';
   }
 
