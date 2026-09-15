@@ -939,7 +939,7 @@ img { max-width: 100%; display: block; }
   overflow: hidden;
 }
 .cell__result-label {
-  font-size: clamp(14px, 2vmin, 24px);
+  font-size: clamp(16px, 2.4vmin, 30px);
   font-weight: var(--weight-black);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
@@ -947,21 +947,25 @@ img { max-width: 100%; display: block; }
 }
 .cell__result-winner {
   display: grid;
-  grid-template-columns: auto minmax(0, max-content);
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto;
   align-items: center;
+  justify-items: center;
   justify-content: center;
-  gap: clamp(10px, 2vmin, 24px);
+  gap: clamp(6px, 1.2vmin, 14px);
+  width: 100%;
   max-width: 100%;
 }
 .cell__result-logo {
-  width: calc(var(--logo-size) * 1.1);
-  height: calc(var(--logo-size) * 1.1);
+  width: calc(var(--logo-size) * .8);
+  height: calc(var(--logo-size) * .8);
   font-size: calc(var(--logo-size) * .3);
 }
 .cell__result-name {
+  width: 100%;
   min-width: 0;
   max-width: 100%;
-  font-size: calc(var(--name-size) * 1.18);
+  font-size: calc(var(--name-size) * 1.45);
   font-weight: var(--weight-black);
   letter-spacing: .02em;
   line-height: 1.08;
@@ -1470,10 +1474,8 @@ function matchCardHTML(t) {
       '<div class="segmented segmented--status" role="group" aria-label="Status meja ' + t.id + '">' +
         statusBtn('waiting') + statusBtn('live') + statusBtn('finished') +
       '</div>' +
-      (t.status === 'finished'
-        ? '<button class="btn btn--quiet btn--display-close" onclick="toggleTableDisplay(' + t.id + ')">' +
-            (t.hidden ? 'Tampilkan di layar' : 'Tutup dari layar') + '</button>'
-        : '') +
+      '<button class="btn btn--quiet btn--display-close" onclick="toggleTableDisplay(' + t.id + ')">' +
+        (t.hidden ? 'Tampilkan di layar' : 'Tutup dari layar') + '</button>' +
       '<button class="btn btn--quiet" onclick="resetTable(' + t.id + ')">Nol-kan skor</button>' +
     '</footer>' +
   '</section>';
@@ -1622,7 +1624,6 @@ function resetTable(id) {
 
 function toggleTableDisplay(id) {
   const t = getTable(id);
-  if (t.status !== 'finished') return;
   t.hidden = !t.hidden;
   saveState();
   refreshCard(id);
