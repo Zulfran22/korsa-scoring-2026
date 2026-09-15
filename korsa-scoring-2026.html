@@ -1497,6 +1497,9 @@ function refreshCard(id) {
     b.setAttribute('aria-pressed', String(b.dataset.status === t.status));
   });
 
+  const displayToggle = card.querySelector('.btn--display-close');
+  if (displayToggle) displayToggle.textContent = t.hidden ? 'Tampilkan di layar' : 'Tutup dari layar';
+
   [['A', t.scoreA, t.scoreA > t.scoreB], ['B', t.scoreB, t.scoreB > t.scoreA]].forEach(entry => {
     const row = card.querySelector('.side[data-side="' + entry[0] + '"]');
     if (!row) return;
